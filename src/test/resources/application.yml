@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: todo-list-test
+  config:
+    import: file:misc/.env[.properties]
+  garcihard:
+    testing:
+      username: ${USERNAME_VALID}
+      password: ${PASSWORD_VALID}
