@@ -4,6 +4,7 @@ import com.garcihard.todolist.model.dto.TaskRequestDTO;
 import com.garcihard.todolist.model.dto.TaskResponseDTO;
 import com.garcihard.todolist.model.dto.TaskUpdateDTO;
 import com.garcihard.todolist.service.TaskService;
+import com.garcihard.todolist.util.ApiConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +20,13 @@ public class TaskController {
 
     static final String BASE_URL = "/api/v1/task";
     static final String TASK_BY_ID = "/{id}";
-    static final String AUTH_HEADER = "Authorization";
+    static final String ID = "id";
 
     private final TaskService taskService;
 
     @GetMapping()
     public ResponseEntity<List<TaskResponseDTO>> getAllTaskFromUser(
-            @RequestHeader(TaskController.AUTH_HEADER) String token) {
+            @RequestHeader(ApiConstants.HEADER_AUTHORIZATION) String token) {
         List<TaskResponseDTO> response = taskService.listAllUserTask(token);
 
         return ResponseEntity.ok().body(response);
@@ -33,7 +34,7 @@ public class TaskController {
 
     @PostMapping
     public ResponseEntity<TaskResponseDTO> addNewUserTask(
-            @RequestHeader(TaskController.AUTH_HEADER) String token,
+            @RequestHeader(ApiConstants.HEADER_AUTHORIZATION) String token,
             @RequestBody TaskRequestDTO newTask) {
         TaskResponseDTO response = taskService.createUserTask(token, newTask);
 
@@ -42,8 +43,8 @@ public class TaskController {
 
     @GetMapping(TaskController.TASK_BY_ID)
     public ResponseEntity<TaskResponseDTO> getTaskById(
-            @RequestHeader(TaskController.AUTH_HEADER) String token,
-            @PathVariable("id") UUID taskId) {
+            @RequestHeader(ApiConstants.HEADER_AUTHORIZATION) String token,
+            @PathVariable(ID) UUID taskId) {
         TaskResponseDTO response = taskService.getUserTaskById(token, taskId);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -51,8 +52,8 @@ public class TaskController {
 
     @PutMapping(TaskController.TASK_BY_ID)
     public ResponseEntity<TaskResponseDTO> updateTaskById(
-            @RequestHeader(TaskController.AUTH_HEADER) String token,
-            @PathVariable("id") UUID taskId,
+            @RequestHeader(ApiConstants.HEADER_AUTHORIZATION) String token,
+            @PathVariable(ID) UUID taskId,
             @RequestBody TaskUpdateDTO updatedTask) {
         TaskResponseDTO response = taskService.updateUserTaskById(token, taskId, updatedTask);
 
@@ -61,8 +62,8 @@ public class TaskController {
 
     @DeleteMapping(TaskController.TASK_BY_ID)
     public ResponseEntity<Void> deleteTaskById(
-            @RequestHeader(TaskController.AUTH_HEADER) String token,
-            @PathVariable("id") UUID taskId) {
+            @RequestHeader(ApiConstants.HEADER_AUTHORIZATION) String token,
+            @PathVariable(ID) UUID taskId) {
         taskService.deleteUserTaskById(token, taskId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

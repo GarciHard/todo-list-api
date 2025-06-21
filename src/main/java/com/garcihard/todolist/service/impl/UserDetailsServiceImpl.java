@@ -2,7 +2,7 @@ package com.garcihard.todolist.service.impl;
 
 import com.garcihard.todolist.repository.UserRepository;
 import com.garcihard.todolist.exception.user.UserException;
-import com.garcihard.todolist.util.UserConstants;
+import com.garcihard.todolist.util.ApiConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.User;
@@ -25,6 +25,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                         user.getUsername(),
                         user.getPassword(),
                         List.of() // No roles used by now.
-                )).orElseThrow(() -> new BadCredentialsException(UserConstants.INVALID_CREDENTIALS));
+                )).orElseThrow(() -> new BadCredentialsException(ApiConstants.INVALID_CREDENTIALS));
     }
 }

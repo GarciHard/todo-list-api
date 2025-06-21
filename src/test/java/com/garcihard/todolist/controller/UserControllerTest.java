@@ -16,7 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import com.garcihard.todolist.util.UserConstants;
+import com.garcihard.todolist.util.ApiConstants;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -75,8 +75,8 @@ class UserControllerTest {
                     .andExpect(
                             jsonPath("$.fieldErrors[*].message",
                                     Matchers.containsInAnyOrder(
-                                            UserConstants.USERNAME_DTO_VALIDATION_NOT_EMPTY_MSG,
-                                            UserConstants.USERNAME_DTO_VALIDATION_SIZE_MSG
+                                            ApiConstants.USERNAME_DTO_VALIDATION_NOT_EMPTY_MSG,
+                                            ApiConstants.USERNAME_DTO_VALIDATION_SIZE_MSG
                                     )
                             )
                     );
@@ -98,7 +98,7 @@ class UserControllerTest {
                     .andExpect(
                             jsonPath("$.fieldErrors[0].message",
                                     Matchers.containsString(
-                                            UserConstants.USERNAME_DTO_VALIDATION_NOT_EMPTY_MSG
+                                            ApiConstants.USERNAME_DTO_VALIDATION_NOT_EMPTY_MSG
                                     )
                             )
                     );
@@ -120,7 +120,7 @@ class UserControllerTest {
                     .andExpect(
                             jsonPath("$.fieldErrors[0].message",
                                     Matchers.containsString(
-                                            UserConstants.USERNAME_DTO_VALIDATION_SIZE_MSG
+                                            ApiConstants.USERNAME_DTO_VALIDATION_SIZE_MSG
                                     )
                             )
                     );
@@ -142,7 +142,7 @@ class UserControllerTest {
                     .andExpect(
                             jsonPath("$.fieldErrors[0].message",
                                     Matchers.containsString(
-                                            UserConstants.USERNAME_DTO_VALIDATION_SIZE_MSG
+                                            ApiConstants.USERNAME_DTO_VALIDATION_SIZE_MSG
                                     )
                             )
                     );
@@ -169,9 +169,9 @@ class UserControllerTest {
                     .andExpect(
                             jsonPath("$.fieldErrors[*].message",
                                     Matchers.containsInAnyOrder(
-                                            UserConstants.PASSWORD_DTO_VALIDATION_MISMATCH_PATTERN_MSG,
-                                            UserConstants.PASSWORD_DTO_VALIDATION_NOT_EMPTY_MSG,
-                                            UserConstants.PASSWORD_DTO_VALIDATION_SIZE_MSG
+                                            ApiConstants.PASSWORD_DTO_VALIDATION_MISMATCH_PATTERN_MSG,
+                                            ApiConstants.PASSWORD_DTO_VALIDATION_NOT_EMPTY_MSG,
+                                            ApiConstants.PASSWORD_DTO_VALIDATION_SIZE_MSG
                                     )
                             )
                     );
@@ -193,7 +193,7 @@ class UserControllerTest {
                     .andExpect(
                             jsonPath("$.fieldErrors[0].message",
                                     Matchers.containsString(
-                                            UserConstants.PASSWORD_DTO_VALIDATION_NOT_EMPTY_MSG
+                                            ApiConstants.PASSWORD_DTO_VALIDATION_NOT_EMPTY_MSG
                                     )
                             )
                     );
@@ -215,7 +215,7 @@ class UserControllerTest {
                     .andExpect(
                             jsonPath("$.fieldErrors[0].message",
                                     Matchers.containsString(
-                                            UserConstants.PASSWORD_DTO_VALIDATION_SIZE_MSG
+                                            ApiConstants.PASSWORD_DTO_VALIDATION_SIZE_MSG
                                     )
                             )
                     );
@@ -237,7 +237,7 @@ class UserControllerTest {
                     .andExpect(
                             jsonPath("$.fieldErrors[0].message",
                                     Matchers.containsString(
-                                            UserConstants.PASSWORD_DTO_VALIDATION_SIZE_MSG
+                                            ApiConstants.PASSWORD_DTO_VALIDATION_SIZE_MSG
                                     )
                             )
                     );
@@ -259,7 +259,7 @@ class UserControllerTest {
                     .andExpect(
                             jsonPath("$.fieldErrors[0].message",
                                     Matchers.containsString(
-                                            UserConstants.PASSWORD_DTO_VALIDATION_MISMATCH_PATTERN_MSG
+                                            ApiConstants.PASSWORD_DTO_VALIDATION_MISMATCH_PATTERN_MSG
                                     )
                             )
                     );
@@ -282,8 +282,8 @@ class UserControllerTest {
                 .andExpect(
                         jsonPath("$.fieldErrors[*].message",
                                 Matchers.containsInAnyOrder(
-                                        UserConstants.USERNAME_DTO_VALIDATION_NOT_EMPTY_MSG,
-                                        UserConstants.PASSWORD_DTO_VALIDATION_NOT_EMPTY_MSG
+                                        ApiConstants.USERNAME_DTO_VALIDATION_NOT_EMPTY_MSG,
+                                        ApiConstants.PASSWORD_DTO_VALIDATION_NOT_EMPTY_MSG
                                 )
                         )
                 );

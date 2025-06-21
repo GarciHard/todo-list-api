@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.garcihard.todolist.util.UserConstants;
+import com.garcihard.todolist.util.ApiConstants;
 
 @RequiredArgsConstructor
 @Service
@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private void throwUsernameTaken(String username) {
-        throw new UserException(UserConstants.USER_CONFLICT_CODE,
-                UserConstants.USER_ALREADY_TAKEN.formatted(username));
+        throw new UserException(ApiConstants.USER_CONFLICT_CODE,
+                ApiConstants.USER_ALREADY_TAKEN.formatted(username));
     }
 }

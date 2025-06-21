@@ -1,6 +1,9 @@
 package com.garcihard.todolist.util;
 
-public class UserConstants {
+public class ApiConstants {
+
+    public static final String HEADER_AUTHORIZATION = "Authorization";
+    public static final String CODE_UNAUTHORIZED = "UNAUTHORIZED";
 
     public static final String PASSWORD_PATTERN =
             "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$";

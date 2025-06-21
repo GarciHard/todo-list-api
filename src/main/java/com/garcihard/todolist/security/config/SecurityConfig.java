@@ -24,6 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
@@ -39,7 +40,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .exceptionHandling(exceptions ->
-                        exceptions.authenticationEntryPoint(new JwtAuthenticationEntryPoint()))
+                        exceptions.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
