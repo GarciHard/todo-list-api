@@ -27,7 +27,7 @@ public class TaskController {
     @GetMapping()
     public ResponseEntity<List<TaskResponseDTO>> getAllTaskFromUser(
             @RequestHeader(ApiConstants.HEADER_AUTHORIZATION) String token) {
-        List<TaskResponseDTO> response = taskService.listAllUserTask(token);
+        List<TaskResponseDTO> response = taskService.listUserTasks(token);
 
         return ResponseEntity.ok().body(response);
     }

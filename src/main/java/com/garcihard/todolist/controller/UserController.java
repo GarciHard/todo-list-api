@@ -7,12 +7,10 @@ import com.garcihard.todolist.service.UserService;
 import com.garcihard.todolist.service.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Slf4j
 @RequiredArgsConstructor
 @RequestMapping(UserController.BASE_URL)
 @RestController

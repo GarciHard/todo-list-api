@@ -3,7 +3,6 @@ package com.garcihard.todolist.exception;
 import com.garcihard.todolist.exception.dto.ErrorResponse;
 import com.garcihard.todolist.exception.dto.FieldErrorResponse;
 import com.garcihard.todolist.util.ApiConstants;
-import io.jsonwebtoken.ClaimJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +18,8 @@ import java.util.List;
 public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
-        String errorCode = "VALIDATION";
-        String message = "Validation Failed for the given request.";
+        String errorCode = ApiConstants.REQUEST_VALIDATION_CODE;
+        String message = ApiConstants.REQUEST_VALIDATION_FAILED;
 
         List<FieldErrorResponse> fieldErrorResponses = ex.getBindingResult().getFieldErrors()
                 .stream().map(error -> new FieldErrorResponse(error.getField(), error.getDefaultMessage()))
@@ -35,17 +34,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleAuthenticationException(BadCredentialsException ex) {
         String errorCode = ApiConstants.INVALID_CREDENTIALS_CODE;
-        String message = ApiConstants.INVALID_CREDENTIALS;
+        String message = ex.getMessage();
 
-        ErrorResponse errorResponse = ErrorResponse.of(errorCode, message, null);
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-    }
-
-    @ExceptionHandler(ClaimJwtException.class)
-    public ResponseEntity<ErrorResponse> handleExpiredJwtException(ClaimJwtException ex) {
-        String errorCode = ApiConstants.INVALID_CREDENTIALS_CODE;
-        String message = "Jwt is expired.";
+        log.warn("Handled BadCredentialsException [{}]: {}", errorCode, message);
 
         ErrorResponse errorResponse = ErrorResponse.of(errorCode, message, null);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);

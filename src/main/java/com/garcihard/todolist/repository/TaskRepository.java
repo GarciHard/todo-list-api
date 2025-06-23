@@ -17,6 +17,5 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
 
     @Modifying
     @Query("DELETE FROM Task t where t.id = :taskId AND t.user.id = :userId")
-    int deletedUserTaskById(@Param("taskId")UUID taskId, @Param("userId") UUID userId);
-
+    int deleteByTaskIdAndUserId(@Param("taskId")UUID taskId, @Param("userId") UUID userId);
 }

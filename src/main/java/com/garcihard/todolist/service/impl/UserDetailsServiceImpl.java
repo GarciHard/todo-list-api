@@ -1,7 +1,6 @@
 package com.garcihard.todolist.service.impl;
 
 import com.garcihard.todolist.repository.UserRepository;
-import com.garcihard.todolist.exception.user.UserException;
 import com.garcihard.todolist.util.ApiConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -19,7 +18,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UserException {
+    public UserDetails loadUserByUsername(String username) {
         return userRepository.findByUsername(username)
                 .map(user -> new User(
                         user.getUsername(),

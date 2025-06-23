@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record LoginResponseDTO(
         @JsonProperty("token_type")
         String tokenType,
-        @JsonProperty("expires_in")
+        @JsonProperty("expires_at")
         Long expiresIn,
         @JsonProperty("access_token")
         String accessToken) {

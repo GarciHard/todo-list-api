@@ -1,6 +1,6 @@
 package com.garcihard.todolist.service.impl;
 
-import com.garcihard.todolist.exception.user.UserException;
+import com.garcihard.todolist.exception.user.ForbiddenResourceForLoggedUserException;
 import com.garcihard.todolist.mapper.TaskMapper;
 import com.garcihard.todolist.model.dto.TaskRequestDTO;
 import com.garcihard.todolist.model.dto.TaskResponseDTO;
@@ -11,16 +11,15 @@ import com.garcihard.todolist.repository.TaskRepository;
 import com.garcihard.todolist.repository.UserRepository;
 import com.garcihard.todolist.security.util.JwtUtil;
 import com.garcihard.todolist.service.TaskService;
+import com.garcihard.todolist.util.ApiConstants;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
-@Slf4j
 @RequiredArgsConstructor
 @Service
 public class TaskServiceImpl implements TaskService {
@@ -31,9 +30,13 @@ public class TaskServiceImpl implements TaskService {
     private final UserRepository userRepository;
     private final EntityManager entityManager;
 
-    @Transactional
+    /*
+    * List for tasks of logged user.
+    * @param token Authentication token to get the username.
+    * */
+    @Transactional(readOnly = true)
     @Override
-    public List<TaskResponseDTO> listAllUserTask(String token) {
+    public List<TaskResponseDTO> listUserTasks(String token) {
         UUID userId = getUserIdFromRequestToken(token);
 
         return taskRepository.findAllByUserId(userId)
@@ -42,6 +45,12 @@ public class TaskServiceImpl implements TaskService {
                 .toList();
     }
 
+    /*
+    * Creates a new task for the logged user.
+    * @param token Authentication token to get the username.
+    * @param task The request containing the task to be created.
+    * @return Task with a unique ID and his creation date.
+    * */
     @Transactional
     @Override
     public TaskResponseDTO createUserTask(String token, TaskRequestDTO task) {
@@ -52,29 +61,46 @@ public class TaskServiceImpl implements TaskService {
         newTask.setUser(userReference);
 
         Task createdEntity = taskRepository.save(newTask);
-        log.info("Created Task: {}", createdEntity.toString());
-
         return mapper.toResponseDto(createdEntity);
     }
 
-    @Transactional
+    /*
+    * Get a specific task.
+    * @param token Authentication token to get the username.
+    * @param taskId Used to search the desired task.
+    * @throws ForbiddenResourceForLoggedUserException If the username mismatch with the task owner.
+    * */
+    @Transactional(readOnly = true)
     @Override
     public TaskResponseDTO getUserTaskById(String token, UUID taskId) {
         UUID userId = getUserIdFromRequestToken(token);
         return mapper.toResponseDto(getTaskEntityByTaskIdAndUserId(taskId, userId));
     }
 
+    /*
+    * Delete a specific task.
+    * @param token Authentication token to get the username.
+    * @param taskId Used to search the task to be deleted.
+    * @throws ForbiddenResourceForLoggedUserException If the username mismatch with the task owner.
+    * */
     @Transactional
     @Override
     public void deleteUserTaskById(String token, UUID taskId) {
         UUID userId = getUserIdFromRequestToken(token);
 
-        int deletedRows = taskRepository.deletedUserTaskById(taskId, userId);
+        int deletedRows = taskRepository.deleteByTaskIdAndUserId(taskId, userId);
         if (deletedRows == 0) {
-            throw resourceNotFoundForLoggedUser();
+            throw forbiddenResourceForUserException();
         }
     }
 
+    /*
+    * Update a specific task.
+    * @param token Authentication token to get the username.
+    * @param taskId Used to search the task to be updated.
+    * @param updatedTask The request with the task data to be updated.
+    * @throws ForbiddenResourceForLoggedUserException If the username mismatch with the task owner.
+    * */
     @Transactional
     @Override
     public TaskResponseDTO updateUserTaskById(String token, UUID taskId, TaskUpdateDTO updatedTask) {
@@ -89,6 +115,12 @@ public class TaskServiceImpl implements TaskService {
         return mapper.toResponseDto(storedTask);
     }
 
+    /*
+    * Fetch the user id from the token.
+    * @param token Authentication token to be decoded.
+    *
+    * @return UUID with the user id from the database.
+    * */
     @Transactional(readOnly = true)
     protected UUID getUserIdFromRequestToken(String token) {
         token = jwtUtil.extractJwtFromRequest(token);
@@ -96,13 +128,17 @@ public class TaskServiceImpl implements TaskService {
         return userRepository.getIdByUsername(username);
     }
 
+    /*
+    * Fetch Task for a specific taskId and userId.
+    * @throws ForbiddenResourceForLoggedUserException If the username mismatch with the task owner.
+    * */
     private Task getTaskEntityByTaskIdAndUserId(UUID taskId, UUID userId) {
         return taskRepository.findByIdAndUserId(taskId, userId)
-                .orElseThrow(this::resourceNotFoundForLoggedUser);
+                .orElseThrow(this::forbiddenResourceForUserException);
     }
 
-    private UserException resourceNotFoundForLoggedUser() {
-        return new UserException("NOT_FOUND", "Task Not Found.");
+    private ForbiddenResourceForLoggedUserException forbiddenResourceForUserException() {
+        return new ForbiddenResourceForLoggedUserException(
+                ApiConstants.USER_FORBIDDEN_CODE, ApiConstants.USER_FORBIDDEN_RESOURCE);
     }
-
 }

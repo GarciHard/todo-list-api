@@ -1,8 +1,12 @@
 package com.garcihard.todolist.model.dto;
 
-import java.util.UUID;
+import com.garcihard.todolist.util.ApiConstants;
+import jakarta.validation.constraints.NotBlank;
 
-public record TaskUpdateDTO(String title,
-                            String description,
-                            boolean completed) {
+
+public record TaskUpdateDTO(
+        @NotBlank(message = ApiConstants.TASK_TITLE_DTO_VALIDATION_NOT_EMPTY)
+        String title,
+        String description,
+        boolean completed) {
 }
