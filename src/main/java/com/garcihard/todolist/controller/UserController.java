@@ -19,7 +19,6 @@ public class UserController {
     static final String BASE_URL = "/api/v1/auth";
     static final String REGISTER_USR_URL = "/register";
     static final String LOGIN_USR_URL = "/login";
-    static final String HEALTH_CHECK = "/health";
 
     private final AuthenticationService authenticationService;
     private final UserService userService;
@@ -34,10 +33,5 @@ public class UserController {
     public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid LoginRequestDTO requestDto) {
         LoginResponseDTO response = authenticationService.authenticate(requestDto);
         return ResponseEntity.ok(response);
-    }
-
-    @GetMapping(UserController.HEALTH_CHECK)
-    public ResponseEntity<?> healthCheck() {
-        return ResponseEntity.status(HttpStatus.OK).body("Ok");
     }
 }

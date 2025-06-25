@@ -8,7 +8,6 @@ import com.garcihard.todolist.model.dto.TaskUpdateDTO;
 import com.garcihard.todolist.model.entity.Task;
 import com.garcihard.todolist.model.entity.User;
 import com.garcihard.todolist.repository.TaskRepository;
-import com.garcihard.todolist.repository.UserRepository;
 import com.garcihard.todolist.security.util.JwtUtil;
 import com.garcihard.todolist.service.TaskService;
 import com.garcihard.todolist.util.ApiConstants;
@@ -27,7 +26,6 @@ public class TaskServiceImpl implements TaskService {
     private final JwtUtil jwtUtil;
     private final TaskRepository taskRepository;
     private final TaskMapper mapper;
-    private final UserRepository userRepository;
     private final EntityManager entityManager;
 
     /*
@@ -121,11 +119,8 @@ public class TaskServiceImpl implements TaskService {
     *
     * @return UUID with the user id from the database.
     * */
-    @Transactional(readOnly = true)
-    protected UUID getUserIdFromRequestToken(String token) {
-        token = jwtUtil.extractJwtFromRequest(token);
-        String username = jwtUtil.extractUsername(token);
-        return userRepository.getIdByUsername(username);
+    private UUID getUserIdFromRequestToken(String token) {
+        return jwtUtil.extractUserId(token);
     }
 
     /*

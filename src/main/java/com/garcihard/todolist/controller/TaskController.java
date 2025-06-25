@@ -5,6 +5,7 @@ import com.garcihard.todolist.model.dto.TaskResponseDTO;
 import com.garcihard.todolist.model.dto.TaskUpdateDTO;
 import com.garcihard.todolist.service.TaskService;
 import com.garcihard.todolist.util.ApiConstants;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class TaskController {
     @PostMapping
     public ResponseEntity<TaskResponseDTO> addNewUserTask(
             @RequestHeader(ApiConstants.HEADER_AUTHORIZATION) String token,
-            @RequestBody TaskRequestDTO newTask) {
+            @RequestBody @Valid TaskRequestDTO newTask) {
         TaskResponseDTO response = taskService.createUserTask(token, newTask);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -54,7 +55,7 @@ public class TaskController {
     public ResponseEntity<TaskResponseDTO> updateTaskById(
             @RequestHeader(ApiConstants.HEADER_AUTHORIZATION) String token,
             @PathVariable(ID) UUID taskId,
-            @RequestBody TaskUpdateDTO updatedTask) {
+            @RequestBody @Valid TaskUpdateDTO updatedTask) {
         TaskResponseDTO response = taskService.updateUserTaskById(token, taskId, updatedTask);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -66,10 +67,5 @@ public class TaskController {
             @PathVariable(ID) UUID taskId) {
         taskService.deleteUserTaskById(token, taskId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
-    @GetMapping("/health")
-    public String test() {
-        return "Hola";
     }
 }

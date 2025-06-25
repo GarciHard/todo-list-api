@@ -2,12 +2,12 @@ package com.garcihard.todolist.service;
 
 import com.garcihard.todolist.model.dto.LoginRequestDTO;
 import com.garcihard.todolist.model.dto.LoginResponseDTO;
+import com.garcihard.todolist.security.CustomUserDetails;
 import com.garcihard.todolist.security.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -28,7 +28,7 @@ public class AuthenticationService {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequest.username(), authRequest.password())
         );
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
         return jwtUtil.generateToken(userDetails);
     }
 }

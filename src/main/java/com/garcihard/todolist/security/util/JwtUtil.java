@@ -1,5 +1,6 @@
 package com.garcihard.todolist.security.util;
 
+import com.garcihard.todolist.security.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.Date;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Component
@@ -23,9 +25,14 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private Long expiration;
 
-    public String generateToken(UserDetails userDetails) {
+    @Value("${jwt.issuer}")
+    private String issuer;
+
+    public String generateToken(CustomUserDetails userDetails) {
         return Jwts.builder()
-                .subject(userDetails.getUsername())
+                .issuer(issuer)
+                .subject(userDetails.getUserId().toString())
+                .claim("username", userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration * 1000))
                 .signWith(SignatureAlgorithm.HS512, secret)
@@ -37,8 +44,12 @@ public class JwtUtil {
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
+    public UUID extractUserId(String token) {
+        return extractClaim(token, claim -> claim.get("subject", UUID.class));
+    }
+
     public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+        return extractClaim(token, claim -> claim.get("username", String.class));
     }
 
     public long extractExpirationMillis(String token){
