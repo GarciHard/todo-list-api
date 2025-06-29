@@ -5,8 +5,10 @@ import com.garcihard.todolist.model.dto.TaskResponseDTO;
 import com.garcihard.todolist.model.dto.TaskUpdateDTO;
 import com.garcihard.todolist.model.entity.Task;
 import com.garcihard.todolist.model.entity.User;
+import com.garcihard.todolist.security.CustomUserDetails;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 public class DefaultTestData {
@@ -68,4 +70,7 @@ public class DefaultTestData {
         return new TaskUpdateDTO(TASK_TITLE, TASK_DESCRIPTION, TASK_COMPLETED);
     }
 
+    public static CustomUserDetails getDefaultUserDetails() {
+        return new CustomUserDetails(USER_ID, USERNAME, PASSWORD, List.of());
+    }
 }

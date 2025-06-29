@@ -3,12 +3,13 @@ package com.garcihard.todolist.controller;
 import com.garcihard.todolist.model.dto.TaskRequestDTO;
 import com.garcihard.todolist.model.dto.TaskResponseDTO;
 import com.garcihard.todolist.model.dto.TaskUpdateDTO;
+import com.garcihard.todolist.security.CustomUserDetails;
 import com.garcihard.todolist.service.TaskService;
-import com.garcihard.todolist.util.ApiConstants;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,45 +28,46 @@ public class TaskController {
 
     @GetMapping()
     public ResponseEntity<List<TaskResponseDTO>> getAllTaskFromUser(
-            @RequestHeader(ApiConstants.HEADER_AUTHORIZATION) String token) {
-        List<TaskResponseDTO> response = taskService.listUserTasks(token);
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<TaskResponseDTO> response = taskService.listUserTasks(userDetails);
 
         return ResponseEntity.ok().body(response);
     }
 
     @PostMapping
     public ResponseEntity<TaskResponseDTO> addNewUserTask(
-            @RequestHeader(ApiConstants.HEADER_AUTHORIZATION) String token,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid TaskRequestDTO newTask) {
-        TaskResponseDTO response = taskService.createUserTask(token, newTask);
+        TaskResponseDTO response = taskService.createUserTask(userDetails, newTask);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping(TaskController.TASK_BY_ID)
     public ResponseEntity<TaskResponseDTO> getTaskById(
-            @RequestHeader(ApiConstants.HEADER_AUTHORIZATION) String token,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable(ID) UUID taskId) {
-        TaskResponseDTO response = taskService.getUserTaskById(token, taskId);
+        TaskResponseDTO response = taskService.getUserTaskById(userDetails, taskId);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping(TaskController.TASK_BY_ID)
     public ResponseEntity<TaskResponseDTO> updateTaskById(
-            @RequestHeader(ApiConstants.HEADER_AUTHORIZATION) String token,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable(ID) UUID taskId,
             @RequestBody @Valid TaskUpdateDTO updatedTask) {
-        TaskResponseDTO response = taskService.updateUserTaskById(token, taskId, updatedTask);
+        TaskResponseDTO response = taskService.updateUserTaskById(userDetails, taskId, updatedTask);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping(TaskController.TASK_BY_ID)
     public ResponseEntity<Void> deleteTaskById(
-            @RequestHeader(ApiConstants.HEADER_AUTHORIZATION) String token,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable(ID) UUID taskId) {
-        taskService.deleteUserTaskById(token, taskId);
+        taskService.deleteUserTaskById(userDetails, taskId);
+
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

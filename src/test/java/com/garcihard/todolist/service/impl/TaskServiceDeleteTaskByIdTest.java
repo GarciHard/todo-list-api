@@ -2,7 +2,7 @@ package com.garcihard.todolist.service.impl;
 
 import com.garcihard.todolist.exception.user.ForbiddenResourceForLoggedUserException;
 import com.garcihard.todolist.repository.TaskRepository;
-import com.garcihard.todolist.security.util.JwtUtil;
+import com.garcihard.todolist.security.CustomUserDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,9 +20,6 @@ import static org.mockito.Mockito.*;
 public class TaskServiceDeleteTaskByIdTest {
 
     @Mock
-    JwtUtil jwtUtil;
-
-    @Mock
     TaskRepository taskRepository;
 
     @InjectMocks
@@ -30,34 +27,33 @@ public class TaskServiceDeleteTaskByIdTest {
 
     private UUID userId;
     private UUID taskId;
+    private CustomUserDetails userDetails;
 
     @BeforeEach
     void setupTestData() {
         userId = USER_ID;
         taskId = TASK_ID;
+
+        userDetails = getDefaultUserDetails();
     }
 
     @Test
     void shouldDeleteTaskWhenUserIdAndTaskIdAreValid() {
-        when(jwtUtil.extractUserId(VALID_TOKEN)).thenReturn(userId);
         when(taskRepository.deleteByTaskIdAndUserId(taskId, userId)).thenReturn(1);
 
-        taskService.deleteUserTaskById(VALID_TOKEN, taskId);
+        taskService.deleteUserTaskById(userDetails, taskId);
 
-        verify(jwtUtil, times(1)).extractUserId(VALID_TOKEN);
         verify(taskRepository, times(1)).deleteByTaskIdAndUserId(taskId, userId);
     }
 
     @Test
     void shouldThrowForbiddenResourceForLoggedUserWhenUserDeleteUnauthorizedTask() {
-        when(jwtUtil.extractUserId(VALID_TOKEN)).thenReturn(userId);
         when(taskRepository.deleteByTaskIdAndUserId(taskId, userId)).thenReturn(0);
 
         assertThrows(ForbiddenResourceForLoggedUserException.class, () -> {
-            taskService.deleteUserTaskById(VALID_TOKEN, taskId);
+            taskService.deleteUserTaskById(userDetails, taskId);
         });
 
-        verify(jwtUtil, times(1)).extractUserId(VALID_TOKEN);
         verify(taskRepository, times(1)).deleteByTaskIdAndUserId(taskId, userId);
     }
 }

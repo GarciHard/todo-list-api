@@ -8,6 +8,7 @@ import com.garcihard.todolist.model.dto.TaskUpdateDTO;
 import com.garcihard.todolist.model.entity.Task;
 import com.garcihard.todolist.model.entity.User;
 import com.garcihard.todolist.repository.TaskRepository;
+import com.garcihard.todolist.security.CustomUserDetails;
 import com.garcihard.todolist.security.util.JwtUtil;
 import com.garcihard.todolist.service.TaskService;
 import com.garcihard.todolist.util.ApiConstants;
@@ -34,8 +35,8 @@ public class TaskServiceImpl implements TaskService {
     * */
     @Transactional(readOnly = true)
     @Override
-    public List<TaskResponseDTO> listUserTasks(String token) {
-        UUID userId = getUserIdFromRequestToken(token);
+    public List<TaskResponseDTO> listUserTasks(CustomUserDetails userDetails) {
+        UUID userId = userDetails.getUserId();
 
         return taskRepository.findAllByUserId(userId)
                 .stream()
@@ -51,8 +52,8 @@ public class TaskServiceImpl implements TaskService {
     * */
     @Transactional
     @Override
-    public TaskResponseDTO createUserTask(String token, TaskRequestDTO task) {
-        UUID userId = getUserIdFromRequestToken(token);
+    public TaskResponseDTO createUserTask(CustomUserDetails userDetails, TaskRequestDTO task) {
+        UUID userId = userDetails.getUserId();
 
         Task newTask = mapper.toEntity(task);
         User userReference = entityManager.getReference(User.class, userId);
@@ -70,8 +71,8 @@ public class TaskServiceImpl implements TaskService {
     * */
     @Transactional(readOnly = true)
     @Override
-    public TaskResponseDTO getUserTaskById(String token, UUID taskId) {
-        UUID userId = getUserIdFromRequestToken(token);
+    public TaskResponseDTO getUserTaskById(CustomUserDetails userDetails, UUID taskId) {
+        UUID userId = userDetails.getUserId();
         return mapper.toResponseDto(getTaskEntityByTaskIdAndUserId(taskId, userId));
     }
 
@@ -83,8 +84,8 @@ public class TaskServiceImpl implements TaskService {
     * */
     @Transactional
     @Override
-    public void deleteUserTaskById(String token, UUID taskId) {
-        UUID userId = getUserIdFromRequestToken(token);
+    public void deleteUserTaskById(CustomUserDetails userDetails, UUID taskId) {
+        UUID userId = userDetails.getUserId();
 
         int deletedRows = taskRepository.deleteByTaskIdAndUserId(taskId, userId);
         if (deletedRows == 0) {
@@ -101,8 +102,8 @@ public class TaskServiceImpl implements TaskService {
     * */
     @Transactional
     @Override
-    public TaskResponseDTO updateUserTaskById(String token, UUID taskId, TaskUpdateDTO updatedTask) {
-        UUID userId = getUserIdFromRequestToken(token);
+    public TaskResponseDTO updateUserTaskById(CustomUserDetails userDetails, UUID taskId, TaskUpdateDTO updatedTask) {
+        UUID userId = userDetails.getUserId();
 
         Task storedTask = getTaskEntityByTaskIdAndUserId(taskId, userId);
         storedTask.setTitle(updatedTask.title());
@@ -119,6 +120,7 @@ public class TaskServiceImpl implements TaskService {
     *
     * @return UUID with the user id from the database.
     * */
+    @Deprecated
     private UUID getUserIdFromRequestToken(String token) {
         return jwtUtil.extractUserId(token);
     }

@@ -6,7 +6,7 @@ import com.garcihard.todolist.model.dto.TaskResponseDTO;
 import com.garcihard.todolist.model.dto.TaskUpdateDTO;
 import com.garcihard.todolist.model.entity.Task;
 import com.garcihard.todolist.repository.TaskRepository;
-import com.garcihard.todolist.security.util.JwtUtil;
+import com.garcihard.todolist.security.CustomUserDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,9 +26,6 @@ import static org.mockito.Mockito.*;
 public class TaskServiceUpdateTaskByIdTest {
 
     @Mock
-    private JwtUtil jwtUtil;
-
-    @Mock
     private TaskRepository taskRepository;
 
     @Mock
@@ -42,6 +39,7 @@ public class TaskServiceUpdateTaskByIdTest {
     private Task task;
     private TaskUpdateDTO taskUpdateDto;
     private TaskResponseDTO taskResponseDto;
+    private CustomUserDetails userDetails;
 
     @BeforeEach
     void setupTestData() {
@@ -51,16 +49,16 @@ public class TaskServiceUpdateTaskByIdTest {
         task = getDefaultTask(userId);
         taskUpdateDto = getDefaultTaskUpdateDto();
         taskResponseDto = getDefaultTaskResponseDto(taskId);
+        userDetails = getDefaultUserDetails();
     }
 
     @Test
     void shouldUpdateTaskAndReturnDtoWhenTokenAndTaskIdAndTaskRequestAreValid() {
-        when(jwtUtil.extractUserId(VALID_TOKEN)).thenReturn(userId);
         when(taskRepository.findByIdAndUserId(taskId, userId)).thenReturn(Optional.ofNullable(task));
         when(taskRepository.save(task)).thenReturn(task);
         when(mapper.toResponseDto(task)).thenReturn(taskResponseDto);
 
-        TaskResponseDTO result = taskService.updateUserTaskById(VALID_TOKEN, taskId, taskUpdateDto);
+        TaskResponseDTO result = taskService.updateUserTaskById(userDetails, taskId, taskUpdateDto);
 
         assertThat(result.title()).isEqualTo(taskUpdateDto.title());
         assertThat(result.description()).isEqualTo(taskUpdateDto.description());
@@ -73,7 +71,6 @@ public class TaskServiceUpdateTaskByIdTest {
         assertThat(result.createdAt()).isEqualTo(task.getCreatedAt());
         assertThat(result.updatedAt()).isEqualTo(task.getUpdatedAt());
 
-        verify(jwtUtil, times(1)).extractUserId(VALID_TOKEN);
         verify(taskRepository, times(1)).findByIdAndUserId(taskId, userId);
         verify(taskRepository, times(1)).save(task);
         verify(mapper, times(1)).toResponseDto(task);
@@ -81,15 +78,13 @@ public class TaskServiceUpdateTaskByIdTest {
 
     @Test
     void shouldThrowForbiddenResourceForLoggedUserWhenUserUpdateUnauthorizedTask() {
-        when(jwtUtil.extractUserId(VALID_TOKEN)).thenReturn(userId);
         when(taskRepository.findByIdAndUserId(taskId, userId))
                 .thenThrow(new ForbiddenResourceForLoggedUserException(FORBIDDEN_CODE, FORBIDDEN_MESSAGE));
 
-        assertThatThrownBy(() -> taskService.updateUserTaskById(VALID_TOKEN, taskId, taskUpdateDto))
+        assertThatThrownBy(() -> taskService.updateUserTaskById(userDetails, taskId, taskUpdateDto))
                 .isInstanceOf(ForbiddenResourceForLoggedUserException.class)
                 .hasMessage(FORBIDDEN_MESSAGE);
 
-        verify(jwtUtil, times(1)).extractUserId(VALID_TOKEN);
         verify(taskRepository, times(1)).findByIdAndUserId(taskId, userId);
     }
 }
