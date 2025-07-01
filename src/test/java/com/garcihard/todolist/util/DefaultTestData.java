@@ -3,6 +3,7 @@ package com.garcihard.todolist.util;
 import com.garcihard.todolist.model.dto.TaskRequestDTO;
 import com.garcihard.todolist.model.dto.TaskResponseDTO;
 import com.garcihard.todolist.model.dto.TaskUpdateDTO;
+import com.garcihard.todolist.model.dto.UserRequestDto;
 import com.garcihard.todolist.model.entity.Task;
 import com.garcihard.todolist.model.entity.User;
 import com.garcihard.todolist.security.CustomUserDetails;
@@ -26,6 +27,8 @@ public class DefaultTestData {
     public static final String USERNAME = "validUser";
     public static final String PASSWORD = "hashedPassword";
 
+    public static final String INTEGRATION_USER_A = "integrationUsr";
+    public static final String INTEGRATION_PASSWORD_B = "Pa$$w0rd1!";
 
     public static Task getDefaultTask(UUID userId) {
         Task defaultTask =  new Task();
@@ -72,5 +75,9 @@ public class DefaultTestData {
 
     public static CustomUserDetails getDefaultUserDetails() {
         return new CustomUserDetails(USER_ID, USERNAME, PASSWORD, List.of());
+    }
+
+    public static UserRequestDto getDefaultUserRequest() {
+        return new UserRequestDto(INTEGRATION_USER_A, INTEGRATION_PASSWORD_B);
     }
 }
