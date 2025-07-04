@@ -1,5 +1,6 @@
 package com.garcihard.todolist.service.impl;
 
+import com.garcihard.todolist.event.dto.TaskCreatedEventDTO;
 import com.garcihard.todolist.exception.user.ForbiddenResourceForLoggedUserException;
 import com.garcihard.todolist.mapper.TaskMapper;
 import com.garcihard.todolist.model.dto.TaskRequestDTO;
@@ -14,8 +15,11 @@ import com.garcihard.todolist.service.TaskService;
 import com.garcihard.todolist.util.ApiConstants;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +32,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final TaskMapper mapper;
     private final EntityManager entityManager;
+    private final ApplicationEventPublisher eventPublisher;
 
     /*
     * List for tasks of logged user.
@@ -60,6 +65,14 @@ public class TaskServiceImpl implements TaskService {
         newTask.setUser(userReference);
 
         Task createdEntity = taskRepository.save(newTask);
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                eventPublisher.publishEvent(TaskCreatedEventDTO.from(createdEntity));
+            }
+        });
+
         return mapper.toResponseDto(createdEntity);
     }
 
