@@ -8,6 +8,18 @@ spring:
     driver-class-name: org.postgresql.Driver
   config:
     import: file:misc/.env[.properties]
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USER}
+    password: ${RABBITMQ_PASS}
+    template:
+      retry:
+        enabled: true
+        max-attempts: 3
+        initial-interval: 1000ms
+        multiplier: 2.0
+        max-interval: 5000ms
 
 jwt:
   secret: ${JWT_SECRET}

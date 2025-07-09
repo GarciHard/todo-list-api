@@ -10,6 +10,7 @@ import com.garcihard.todolist.model.entity.User;
 import com.garcihard.todolist.repository.TaskRepository;
 import com.garcihard.todolist.security.CustomUserDetails;
 import com.garcihard.todolist.security.util.JwtUtil;
+import com.garcihard.todolist.service.TaskOutboxService;
 import com.garcihard.todolist.service.TaskService;
 import com.garcihard.todolist.util.ApiConstants;
 import jakarta.persistence.EntityManager;
@@ -28,6 +29,8 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final TaskMapper mapper;
     private final EntityManager entityManager;
+
+    private final TaskOutboxService outboxService;
 
     /*
     * List for tasks of logged user.
@@ -60,6 +63,8 @@ public class TaskServiceImpl implements TaskService {
         newTask.setUser(userReference);
 
         Task createdEntity = taskRepository.save(newTask);
+        outboxService.createTaskOutbox(createdEntity);
+
         return mapper.toResponseDto(createdEntity);
     }
 
@@ -111,6 +116,8 @@ public class TaskServiceImpl implements TaskService {
         storedTask.setCompleted(updatedTask.completed());
 
         storedTask = taskRepository.save(storedTask);
+        outboxService.updateNotification(storedTask);
+
         return mapper.toResponseDto(storedTask);
     }
 
