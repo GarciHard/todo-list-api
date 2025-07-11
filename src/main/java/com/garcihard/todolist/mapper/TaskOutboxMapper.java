@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 public interface TaskOutboxMapper {
 
     @Mapping(source = "id", target = "taskId")
-    @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "userId", target = "userId")
     @Mapping(source = "title", target = "title")
     @Mapping(target = "id", ignore = true)
     TaskOutbox fromTaskToOutbox(Task task);

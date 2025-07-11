@@ -1,19 +1,15 @@
 package com.garcihard.todolist.service.impl;
 
-import com.garcihard.todolist.exception.user.ForbiddenResourceForLoggedUserException;
+import com.garcihard.todolist.exception.custom.ForbiddenResourceForLoggedUserException;
 import com.garcihard.todolist.mapper.TaskMapper;
 import com.garcihard.todolist.model.dto.TaskRequestDTO;
 import com.garcihard.todolist.model.dto.TaskResponseDTO;
 import com.garcihard.todolist.model.dto.TaskUpdateDTO;
 import com.garcihard.todolist.model.entity.Task;
-import com.garcihard.todolist.model.entity.User;
 import com.garcihard.todolist.repository.TaskRepository;
-import com.garcihard.todolist.security.CustomUserDetails;
-import com.garcihard.todolist.security.util.JwtUtil;
 import com.garcihard.todolist.service.TaskOutboxService;
 import com.garcihard.todolist.service.TaskService;
 import com.garcihard.todolist.util.ApiConstants;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,22 +21,18 @@ import java.util.UUID;
 @Service
 public class TaskServiceImpl implements TaskService {
 
-    private final JwtUtil jwtUtil;
     private final TaskRepository taskRepository;
     private final TaskMapper mapper;
-    private final EntityManager entityManager;
 
     private final TaskOutboxService outboxService;
 
     /*
     * List for tasks of logged user.
-    * @param token Authentication token to get the username.
+    * @param userId Retrieved from header.
     * */
     @Transactional(readOnly = true)
     @Override
-    public List<TaskResponseDTO> listUserTasks(CustomUserDetails userDetails) {
-        UUID userId = userDetails.getUserId();
-
+    public List<TaskResponseDTO> listUserTasks(UUID userId) {
         return taskRepository.findAllByUserId(userId)
                 .stream()
                 .map(mapper::toResponseDto)
@@ -49,18 +41,15 @@ public class TaskServiceImpl implements TaskService {
 
     /*
     * Creates a new task for the logged user.
-    * @param token Authentication token to get the username.
+    * @param userId Retrieved from header.
     * @param task The request containing the task to be created.
     * @return Task with a unique ID and his creation date.
     * */
     @Transactional
     @Override
-    public TaskResponseDTO createUserTask(CustomUserDetails userDetails, TaskRequestDTO task) {
-        UUID userId = userDetails.getUserId();
-
+    public TaskResponseDTO createUserTask(UUID userId, TaskRequestDTO task) {
         Task newTask = mapper.toEntity(task);
-        User userReference = entityManager.getReference(User.class, userId);
-        newTask.setUser(userReference);
+        newTask.setUserId(userId);
 
         Task createdEntity = taskRepository.save(newTask);
         outboxService.createTaskOutbox(createdEntity);
@@ -70,28 +59,25 @@ public class TaskServiceImpl implements TaskService {
 
     /*
     * Get a specific task.
-    * @param token Authentication token to get the username.
+    * @param userId Retrieved from header.
     * @param taskId Used to search the desired task.
     * @throws ForbiddenResourceForLoggedUserException If the username mismatch with the task owner.
     * */
     @Transactional(readOnly = true)
     @Override
-    public TaskResponseDTO getUserTaskById(CustomUserDetails userDetails, UUID taskId) {
-        UUID userId = userDetails.getUserId();
+    public TaskResponseDTO getUserTaskById(UUID userId, UUID taskId) {
         return mapper.toResponseDto(getTaskEntityByTaskIdAndUserId(taskId, userId));
     }
 
     /*
     * Delete a specific task.
-    * @param token Authentication token to get the username.
+    * @param userId Retrieved from header.
     * @param taskId Used to search the task to be deleted.
     * @throws ForbiddenResourceForLoggedUserException If the username mismatch with the task owner.
     * */
     @Transactional
     @Override
-    public void deleteUserTaskById(CustomUserDetails userDetails, UUID taskId) {
-        UUID userId = userDetails.getUserId();
-
+    public void deleteUserTaskById(UUID userId, UUID taskId) {
         int deletedRows = taskRepository.deleteByTaskIdAndUserId(taskId, userId);
         if (deletedRows == 0) {
             throw forbiddenResourceForUserException();
@@ -100,16 +86,14 @@ public class TaskServiceImpl implements TaskService {
 
     /*
     * Update a specific task.
-    * @param token Authentication token to get the username.
+    * @param userId Retrieved from header.
     * @param taskId Used to search the task to be updated.
     * @param updatedTask The request with the task data to be updated.
     * @throws ForbiddenResourceForLoggedUserException If the username mismatch with the task owner.
     * */
     @Transactional
     @Override
-    public TaskResponseDTO updateUserTaskById(CustomUserDetails userDetails, UUID taskId, TaskUpdateDTO updatedTask) {
-        UUID userId = userDetails.getUserId();
-
+    public TaskResponseDTO updateUserTaskById(UUID userId, UUID taskId, TaskUpdateDTO updatedTask) {
         Task storedTask = getTaskEntityByTaskIdAndUserId(taskId, userId);
         storedTask.setTitle(updatedTask.title());
         storedTask.setDescription(updatedTask.description());
@@ -119,17 +103,6 @@ public class TaskServiceImpl implements TaskService {
         outboxService.updateNotification(storedTask);
 
         return mapper.toResponseDto(storedTask);
-    }
-
-    /*
-    * Fetch the user id from the token.
-    * @param token Authentication token to be decoded.
-    *
-    * @return UUID with the user id from the database.
-    * */
-    @Deprecated
-    private UUID getUserIdFromRequestToken(String token) {
-        return jwtUtil.extractUserId(token);
     }
 
     /*

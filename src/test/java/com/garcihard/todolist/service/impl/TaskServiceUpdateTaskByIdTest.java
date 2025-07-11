@@ -1,12 +1,11 @@
 package com.garcihard.todolist.service.impl;
 
-import com.garcihard.todolist.exception.user.ForbiddenResourceForLoggedUserException;
+import com.garcihard.todolist.exception.custom.ForbiddenResourceForLoggedUserException;
 import com.garcihard.todolist.mapper.TaskMapper;
 import com.garcihard.todolist.model.dto.TaskResponseDTO;
 import com.garcihard.todolist.model.dto.TaskUpdateDTO;
 import com.garcihard.todolist.model.entity.Task;
 import com.garcihard.todolist.repository.TaskRepository;
-import com.garcihard.todolist.security.CustomUserDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +38,6 @@ public class TaskServiceUpdateTaskByIdTest {
     private Task task;
     private TaskUpdateDTO taskUpdateDto;
     private TaskResponseDTO taskResponseDto;
-    private CustomUserDetails userDetails;
 
     @BeforeEach
     void setupTestData() {
@@ -49,7 +47,6 @@ public class TaskServiceUpdateTaskByIdTest {
         task = getDefaultTask(userId);
         taskUpdateDto = getDefaultTaskUpdateDto();
         taskResponseDto = getDefaultTaskResponseDto(taskId);
-        userDetails = getDefaultUserDetails();
     }
 
     @Test
@@ -58,7 +55,7 @@ public class TaskServiceUpdateTaskByIdTest {
         when(taskRepository.save(task)).thenReturn(task);
         when(mapper.toResponseDto(task)).thenReturn(taskResponseDto);
 
-        TaskResponseDTO result = taskService.updateUserTaskById(userDetails, taskId, taskUpdateDto);
+        TaskResponseDTO result = taskService.updateUserTaskById(userId, taskId, taskUpdateDto);
 
         assertThat(result.title()).isEqualTo(taskUpdateDto.title());
         assertThat(result.description()).isEqualTo(taskUpdateDto.description());
@@ -81,7 +78,7 @@ public class TaskServiceUpdateTaskByIdTest {
         when(taskRepository.findByIdAndUserId(taskId, userId))
                 .thenThrow(new ForbiddenResourceForLoggedUserException(FORBIDDEN_CODE, FORBIDDEN_MESSAGE));
 
-        assertThatThrownBy(() -> taskService.updateUserTaskById(userDetails, taskId, taskUpdateDto))
+        assertThatThrownBy(() -> taskService.updateUserTaskById(userId, taskId, taskUpdateDto))
                 .isInstanceOf(ForbiddenResourceForLoggedUserException.class)
                 .hasMessage(FORBIDDEN_MESSAGE);
 
