@@ -3,10 +3,7 @@ package com.garcihard.todolist.util;
 import com.garcihard.todolist.model.dto.TaskRequestDTO;
 import com.garcihard.todolist.model.dto.TaskResponseDTO;
 import com.garcihard.todolist.model.dto.TaskUpdateDTO;
-import com.garcihard.todolist.model.dto.UserRequestDto;
 import com.garcihard.todolist.model.entity.Task;
-import com.garcihard.todolist.model.entity.User;
-import com.garcihard.todolist.security.CustomUserDetails;
 
 import java.time.Instant;
 import java.util.List;
@@ -36,26 +33,10 @@ public class DefaultTestData {
         defaultTask.setTitle(TASK_TITLE);
         defaultTask.setDescription(TASK_DESCRIPTION);
         defaultTask.setCompleted(TASK_COMPLETED);
-        defaultTask.setUser(getDefaultUser(userId));
+        defaultTask.setUserId(userId);
         defaultTask.setCreatedAt(FIXED_TIMESTAMP);
         defaultTask.setUpdatedAt(FIXED_TIMESTAMP);
         return defaultTask;
-    }
-
-    public static User getDefaultUser(UUID userId) {
-        User defaultUser = new User();
-        defaultUser.setId(userId);
-        defaultUser.setUsername(USERNAME);
-        defaultUser.setPassword(PASSWORD);
-        defaultUser.setCreatedAt(FIXED_TIMESTAMP);
-        defaultUser.setUpdatedAt(FIXED_TIMESTAMP);
-        return defaultUser;
-    }
-
-    public static User getDefaultUserReference(UUID userId){
-        User userReference = new User();
-        userReference.setId(userId);
-        return userReference;
     }
 
     public static TaskResponseDTO getDefaultTaskResponseDto(UUID taskId) {
@@ -71,13 +52,5 @@ public class DefaultTestData {
 
     public static TaskUpdateDTO getDefaultTaskUpdateDto() {
         return new TaskUpdateDTO(TASK_TITLE, TASK_DESCRIPTION, TASK_COMPLETED);
-    }
-
-    public static CustomUserDetails getDefaultUserDetails() {
-        return new CustomUserDetails(USER_ID, USERNAME, PASSWORD, List.of());
-    }
-
-    public static UserRequestDto getDefaultUserRequest() {
-        return new UserRequestDto(INTEGRATION_USER_A, INTEGRATION_PASSWORD_B);
     }
 }

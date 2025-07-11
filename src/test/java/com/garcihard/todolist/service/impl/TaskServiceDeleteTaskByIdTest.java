@@ -1,8 +1,7 @@
 package com.garcihard.todolist.service.impl;
 
-import com.garcihard.todolist.exception.user.ForbiddenResourceForLoggedUserException;
+import com.garcihard.todolist.exception.custom.ForbiddenResourceForLoggedUserException;
 import com.garcihard.todolist.repository.TaskRepository;
-import com.garcihard.todolist.security.CustomUserDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,21 +26,18 @@ public class TaskServiceDeleteTaskByIdTest {
 
     private UUID userId;
     private UUID taskId;
-    private CustomUserDetails userDetails;
 
     @BeforeEach
     void setupTestData() {
         userId = USER_ID;
         taskId = TASK_ID;
-
-        userDetails = getDefaultUserDetails();
     }
 
     @Test
     void shouldDeleteTaskWhenUserIdAndTaskIdAreValid() {
         when(taskRepository.deleteByTaskIdAndUserId(taskId, userId)).thenReturn(1);
 
-        taskService.deleteUserTaskById(userDetails, taskId);
+        taskService.deleteUserTaskById(userId, taskId);
 
         verify(taskRepository, times(1)).deleteByTaskIdAndUserId(taskId, userId);
     }
@@ -51,7 +47,7 @@ public class TaskServiceDeleteTaskByIdTest {
         when(taskRepository.deleteByTaskIdAndUserId(taskId, userId)).thenReturn(0);
 
         assertThrows(ForbiddenResourceForLoggedUserException.class, () -> {
-            taskService.deleteUserTaskById(userDetails, taskId);
+            taskService.deleteUserTaskById(userId, taskId);
         });
 
         verify(taskRepository, times(1)).deleteByTaskIdAndUserId(taskId, userId);

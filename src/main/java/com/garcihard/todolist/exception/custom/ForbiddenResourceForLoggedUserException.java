@@ -1,4 +1,4 @@
-package com.garcihard.todolist.exception.user;
+package com.garcihard.todolist.exception.custom;
 
 import lombok.Getter;
 

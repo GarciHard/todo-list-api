@@ -1,6 +1,6 @@
 spring:
   application:
-    name: todo-list
+    name: todo-list-api
   datasource:
     url: ${POSTGRES_URI}
     username: ${POSTGRES_USER}
@@ -20,8 +20,17 @@ spring:
         initial-interval: 1000ms
         multiplier: 2.0
         max-interval: 5000ms
-
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8070/eureka/
+  instance:
+    hostname: localhost
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION}
   issuer: ${JWT_ISSUER}
+server:
+  port: 8090

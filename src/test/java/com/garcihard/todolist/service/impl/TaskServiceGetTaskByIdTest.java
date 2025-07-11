@@ -1,11 +1,10 @@
 package com.garcihard.todolist.service.impl;
 
-import com.garcihard.todolist.exception.user.ForbiddenResourceForLoggedUserException;
+import com.garcihard.todolist.exception.custom.ForbiddenResourceForLoggedUserException;
 import com.garcihard.todolist.mapper.TaskMapper;
 import com.garcihard.todolist.model.dto.TaskResponseDTO;
 import com.garcihard.todolist.model.entity.Task;
 import com.garcihard.todolist.repository.TaskRepository;
-import com.garcihard.todolist.security.CustomUserDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +36,6 @@ public class TaskServiceGetTaskByIdTest {
     private UUID taskId;
     private TaskResponseDTO taskResponse;
     private Task task;
-    private CustomUserDetails userDetails;
 
     @BeforeEach
     void setupTestData() {
@@ -46,7 +44,6 @@ public class TaskServiceGetTaskByIdTest {
 
         task = getDefaultTask(userId);
         taskResponse = getDefaultTaskResponseDto(userId);
-        userDetails = getDefaultUserDetails();
     }
 
     @Test
@@ -54,7 +51,7 @@ public class TaskServiceGetTaskByIdTest {
         when(taskRepository.findByIdAndUserId(taskId, userId)).thenReturn(Optional.ofNullable(task));
         when(mapper.toResponseDto(task)).thenReturn(taskResponse);
 
-        TaskResponseDTO result = taskService.getUserTaskById(userDetails, taskId);
+        TaskResponseDTO result = taskService.getUserTaskById(userId, taskId);
 
         assertThat(result.id()).isEqualTo(taskResponse.id());
         assertThat(result.title()).isEqualTo(taskResponse.title());
@@ -72,7 +69,7 @@ public class TaskServiceGetTaskByIdTest {
         when(taskRepository.findByIdAndUserId(taskId, userId))
                 .thenThrow(new ForbiddenResourceForLoggedUserException(FORBIDDEN_CODE, FORBIDDEN_MESSAGE));
 
-        assertThatThrownBy(() -> taskService.getUserTaskById(userDetails, taskId))
+        assertThatThrownBy(() -> taskService.getUserTaskById(userId, taskId))
                 .isInstanceOf(ForbiddenResourceForLoggedUserException.class)
                 .hasMessage(FORBIDDEN_MESSAGE);
 

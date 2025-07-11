@@ -16,6 +16,6 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
     Optional<Task> findByIdAndUserId(UUID taskId, UUID userId);
 
     @Modifying
-    @Query("DELETE FROM Task t where t.id = :taskId AND t.user.id = :userId")
+    @Query("DELETE FROM Task t where t.id = :taskId AND t.userId = :userId")
     int deleteByTaskIdAndUserId(@Param("taskId")UUID taskId, @Param("userId") UUID userId);
 }

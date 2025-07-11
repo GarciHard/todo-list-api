@@ -32,7 +32,6 @@ public class Task extends BaseEntity implements Serializable {
     @Column(insertable = false, updatable = true)
     private boolean completed;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(name = "user_id", updatable = false)
+    private UUID userId;
 }
