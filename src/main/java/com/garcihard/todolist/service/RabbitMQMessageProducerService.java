@@ -1,7 +1,6 @@
 package com.garcihard.todolist.service;
 
-import com.garcihard.todolist.config.RabbitMQConfig;
-import com.garcihard.todolist.event.dto.TaskNotificationDTO;
+import com.garcihard.todolist.config.RabbitMQProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;
@@ -15,19 +14,20 @@ import org.springframework.stereotype.Component;
 public class RabbitMQMessageProducerService {
 
     private final RabbitTemplate rabbitTemplate;
+    private final RabbitMQProperties properties;
 
     @Async
-    public void sendMessage(TaskNotificationDTO notificationDTO) {
+    public void sendMessage(Object notification) {
         try {
-            log.info("Attempting to send a message to exchange: {}", RabbitMQConfig.EXCHANGE_NAME);
+            log.info("Attempting to send a message to exchange: {}", properties.exchange());
             rabbitTemplate.convertAndSend(
-                    RabbitMQConfig.EXCHANGE_NAME,
-                    RabbitMQConfig.ROUTING_KEY,
-                    notificationDTO
+                    properties.exchange(),
+                    properties.routingKey(),
+                    notification
             );
             log.info("Message sent successfully");
         } catch (AmqpException ex) {
-            log.error("Failed to send message to RabbitMQ. Payload: {}, Exchange: {}, Reason: {}", notificationDTO, RabbitMQConfig.EXCHANGE_NAME, ex.getMessage());
+            log.error("Failed to send message to RabbitMQ. Payload: {}, Exchange: {}, Reason: {}", notification, properties.exchange(), ex.getMessage());
         }
     }
 }
